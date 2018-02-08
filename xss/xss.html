@@ -1,0 +1,102 @@
+<html>
+    <head>
+        <title>xss - decode and encode</title>
+    </head>
+    <body>
+        <input id='in'/>
+        <button id='submit'>submit</button>
+        <div id='test_html'></div>
+    <script>
+        //实现url encode
+        var url = {
+            stringify:function(text){
+                var s='';
+                Array.prototype.forEach.call(text,function(e){
+                    e = "%"+e.charCodeAt(0).toString(16).toUpperCase();
+                    s+=e;
+                })
+                return s;
+            },
+            parse:function(text){
+                return decodeURIComponent(text);
+            }
+        }
+        //实现html编码和解码
+        var html={
+            stringify:function(text){
+                var s='';
+                Array.prototype.forEach.call(text,function(e){
+                    //console.log(e);
+                    e = "&#" + e.charCodeAt()
+                    s+=e;
+                })
+                return s;
+            },
+            parse:function(text){
+                var code = text.split('&#');
+                var s = '';
+                code.forEach(function(e){
+                    if(e){
+                        s+=String.fromCharCode(e);
+                    }
+                })
+                return s;
+            }
+        }
+        // test
+        var c=html.stringify('<script/><script>')
+        console.log(c);
+       
+        var d = html.parse(c);
+        console.log(d);
+        // 实现js编码和解码
+        function repeat(str,num){
+            return Array.apply(
+                null,{
+                    length:num+1
+                }
+            ).join(str);
+        }
+        var unicode ={
+            stringify:function(text){
+                console.log('Start to encode');
+                var total='';
+                for(var i=0;i<text.length;i++){
+                    var s = text.charCodeAt(i).toString(16);
+                    if(s.length!=4){
+                        s =repeat('0',(4-s.length))+s;
+                    }
+                    s = "\\u"+s;
+                    total+=s;
+                   
+                }
+                return total;
+            },
+            parse:function(text){
+                return unescape(text);
+            }
+        }
+        // test
+        var a = unicode.stringify("<script/>alsss<script>");
+        console.log(a);
+        var b = unicode.parse('\u003c\u0073\u0063\u0072\u0069\u0070\u0074\u002f\u003e\u0061\u006c\u0073\u0073\u0073\u003c\u0073\u0063\u0072\u0069\u0070\u0074\u003e')
+        console.log(b);
+      
+
+        var submit = document.getElementById('submit');
+        submit.addEventListener('click',function(){
+            var i = document.getElementById('in').value;
+            var url_text = url.stringify(i);
+            var html_text = html.stringify(i);
+            var unicode_text = unicode.stringify(i);
+
+            var div = document.createElement('div');
+            div.innerText = "\n url encode: \n"+ url_text +'\n\n'+"html encode:\n"+html_text+"\n\n"+"unicode encode:\n"+unicode_text+'\n\n';
+            var display = document.getElementById('test_html');
+            display.innerHTML='';
+            display.appendChild(div);
+        })
+        
+    </script>
+    </body>
+</html>

